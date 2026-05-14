@@ -4,9 +4,12 @@ import webbrowser
 from socket import AF_INET, socket, SOCK_STREAM
 import json
 import helper
+from dotenv import load_dotenv
 
-app_key = ''
-app_secret = ''
+load_dotenv()
+
+app_key = os.getenv('APP_KEY')
+app_secret = os.getenv('APP_SECRET')
 server_addr = "localhost"
 server_port = 8070
 redirect_uri = "http://" + server_addr + ":" + str(server_port)
@@ -53,11 +56,47 @@ class Dropbox:
         return auth_code
 
     def do_oauth(self):
-        #############################################
-        # RELLENAR CON CODIGO DE LAS PETICIONES HTTP
-        # Y PROCESAMIENTO DE LAS RESPUESTAS HTTP
-        # PARA LA OBTENCION DEL ACCESS TOKEN
-        #############################################
+        def do_oauth(self):
+        # 1. Solicitar Autorización (Abrir el navegador)
+        auth_url = "https://www.dropbox.com/oauth2/authorize"
+        params_get = {
+            "client_id": app_key,
+            "response_type": "code",
+            "redirect_uri": redirect_uri
+        }
+        
+        # urllib.parse.urlencode convierte el diccionario en formato query string (?clave=valor)
+        url_completa = auth_url + "?" + urllib.parse.urlencode(params_get)
+        print("Abriendo navegador para autorización OAuth...")
+        webbrowser.open(url_completa)
+
+        # 2. Capturar el Código de Autorización (Tu servidor se queda escuchando aquí)
+        auth_code = self.local_server()
+
+        # 3. Intercambiar el Código por el Token Definitivo
+        token_url = "https://api.dropboxapi.com/oauth2/token"
+        datos_post = {
+            "code": auth_code,
+            "grant_type": "authorization_code",
+            "client_id": app_key,
+            "client_secret": app_secret,
+            "redirect_uri": redirect_uri
+        }
+        
+        print("Intercambiando authorization code por access token...")
+        # El POST requiere que enviemos los datos en el cuerpo de la petición (data)
+        respuesta = requests.post(token_url, data=datos_post)
+        
+        if respuesta.status_code == 200:
+            token_data = respuesta.json()
+            # Actualizamos el atributo como exige el enunciado
+            self._access_token = token_data.get("access_token")
+            print("Access token obtenido con éxito.")
+        else:
+            print(f"Error al obtener el token: {respuesta.status_code} - {respuesta.text}")
+
+        # Cerramos la ventana de login de Tkinter
+        self._root.destroy()
 
         self._root.destroy()
 
