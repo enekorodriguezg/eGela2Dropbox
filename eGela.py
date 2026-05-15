@@ -139,41 +139,48 @@ class eGela:
         else:
             messagebox.showinfo("Alert Message", "Login incorrect!")
 
-
     def get_pdf_refs(self):
         popup, progress_var, progress_bar = helper.progress("get_pdf_refs", "Downloading PDF list...")
         progress = 0
         progress_var.set(progress)
         progress_bar.update()
 
-        print("\n##### 4. PETICION (Página principal de la asignatura en eGela) #####")
         cabeceras = {'Cookie': self._cookie}
         respuesta5 = requests.get(self._curso, headers=cabeceras, allow_redirects=True)
         html5 = BeautifulSoup(respuesta5.content, 'html.parser')
 
-        print("\n##### Analisis del HTML... #####")
-        enlaces = html5.find_all('a', {'class': 'aalink'})
+        urls_secciones = [self._curso]
+        enlaces_pagina = html5.find_all('a', href=True)
+
+        for enlace in enlaces_pagina:
+            href = enlace['href']
+            if 'course/view.php?id=' in href and '&section=' in href:
+                if href not in urls_secciones:
+                    urls_secciones.append(href)
+
         NUMERO_DE_PDF_EN_EGELA = []
+        enlaces_procesados = set()
 
-        for enlace in enlaces:
+        for url in urls_secciones:
+            resp_sec = requests.get(url, headers=cabeceras, allow_redirects=True)
+            html_sec = BeautifulSoup(resp_sec.content, 'html.parser')
 
-            link = enlace.get('href', '')
-            
-            # 1. Filtramos por la URL: si contiene 'resource/view.php', es un recurso/archivo
-            if 'resource/view.php' in link:
-                span_name = enlace.find('span', {'class': 'instancename'})
-                
-                if span_name:
-                    # 2. Localizamos el span oculto ('accesshide') y lo destruimos del árbol 
-                    # para que no contamine el string del nombre final
-                    accesshide = span_name.find('span', {'class': 'accesshide'})
-                    if accesshide:
-                        accesshide.decompose()
-                    
-                    # 3. Limpiamos los saltos de línea sobrantes y añadimos la extensión
-                    nombre = span_name.text.strip() + '.pdf'
-                    
-                    NUMERO_DE_PDF_EN_EGELA.append({'pdf_name': nombre, 'pdf_link': link})
+            enlaces_recursos = html_sec.find_all('a', {'class': 'aalink'})
+
+            for enlace in enlaces_recursos:
+                link = enlace.get('href', '')
+
+                if 'resource/view.php' in link and link not in enlaces_procesados:
+                    enlaces_procesados.add(link)
+                    span_name = enlace.find('span', {'class': 'instancename'})
+
+                    if span_name:
+                        accesshide = span_name.find('span', {'class': 'accesshide'})
+                        if accesshide:
+                            accesshide.decompose()
+
+                        nombre = span_name.text.strip() + '.pdf'
+                        NUMERO_DE_PDF_EN_EGELA.append({'pdf_name': nombre, 'pdf_link': link})
 
         if len(NUMERO_DE_PDF_EN_EGELA) > 0:
             progress_step = float(100.0 / len(NUMERO_DE_PDF_EN_EGELA))
