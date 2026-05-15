@@ -1,3 +1,4 @@
+import os
 import requests
 import urllib
 import webbrowser
@@ -56,7 +57,6 @@ class Dropbox:
         return auth_code
 
     def do_oauth(self):
-        def do_oauth(self):
         # 1. Solicitar Autorización (Abrir el navegador)
         auth_url = "https://www.dropbox.com/oauth2/authorize"
         params_get = {
