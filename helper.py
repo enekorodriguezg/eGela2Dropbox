@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import os
+from PIL import Image, ImageTk
 
 def center(win):
     win.update_idletasks()
@@ -58,12 +59,24 @@ def update_listbox2(msg_listbox, path, edukia_json):
     return files
 
 
+import os
+
 def set_icon(window, icon_path='./favicon.ico'):
     try:
         if os.name == 'nt':
             window.iconbitmap(icon_path)
         else:
-            icono = tk.PhotoImage(file=icon_path)
+            # Importación local de la nueva librería
+            
+            
+            # Pillow sí sabe leer archivos .ico y convertirlos
+            img = Image.open(icon_path)
+            icono = ImageTk.PhotoImage(img)
+            
+            # CRUCIAL: Guardamos una referencia en la ventana para que 
+            # el 'Garbage Collector' de Python no borre la imagen de la memoria RAM
+            window.icono_persistente = icono 
+            
             window.iconphoto(True, icono)
     except Exception as e:
         print(f"Aviso: No se pudo cargar el icono ({e}). Continuando ejecución...")
