@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import os
 
 def center(win):
     win.update_idletasks()
@@ -22,7 +23,7 @@ def progress(tipo, title):
         popup = tk.Toplevel()
     popup.geometry('250x50')
     popup.title(title)
-    popup.iconbitmap('./favicon.ico')
+    set_icon(popup)
     center(popup)
     label = tk.Label(popup, text=title)
     label.grid(row=0, column=0)
@@ -55,3 +56,14 @@ def update_listbox2(msg_listbox, path, edukia_json):
                             'name': each['name'],
                             '.tag': each['.tag']})
     return files
+
+
+def set_icon(window, icon_path='./favicon.ico'):
+    try:
+        if os.name == 'nt':
+            window.iconbitmap(icon_path)
+        else:
+            icono = tk.PhotoImage(file=icon_path)
+            window.iconphoto(True, icono)
+    except Exception as e:
+        print(f"Aviso: No se pudo cargar el icono ({e}). Continuando ejecución...")

@@ -148,7 +148,7 @@ class eGela:
 
         print("\n##### 4. PETICION (Página principal de la asignatura en eGela) #####")
         cabeceras = {'Cookie': self._cookie}
-        respuesta5 = requests.get(self._curso, headers=cabeceras, allow_redirects=False)
+        respuesta5 = requests.get(self._curso, headers=cabeceras, allow_redirects=True)
         html5 = BeautifulSoup(respuesta5.content, 'html.parser')
 
         print("\n##### Analisis del HTML... #####")
@@ -156,12 +156,23 @@ class eGela:
         NUMERO_DE_PDF_EN_EGELA = []
 
         for enlace in enlaces:
-            img = enlace.find('img')
-            if img and 'pdf' in img.get('src', ''):
+
+            link = enlace.get('href', '')
+            
+            # 1. Filtramos por la URL: si contiene 'resource/view.php', es un recurso/archivo
+            if 'resource/view.php' in link:
                 span_name = enlace.find('span', {'class': 'instancename'})
+                
                 if span_name:
-                    nombre = span_name.text.replace(' Archivo', '').strip() + '.pdf'
-                    link = enlace.get('href')
+                    # 2. Localizamos el span oculto ('accesshide') y lo destruimos del árbol 
+                    # para que no contamine el string del nombre final
+                    accesshide = span_name.find('span', {'class': 'accesshide'})
+                    if accesshide:
+                        accesshide.decompose()
+                    
+                    # 3. Limpiamos los saltos de línea sobrantes y añadimos la extensión
+                    nombre = span_name.text.strip() + '.pdf'
+                    
                     NUMERO_DE_PDF_EN_EGELA.append({'pdf_name': nombre, 'pdf_link': link})
 
         if len(NUMERO_DE_PDF_EN_EGELA) > 0:

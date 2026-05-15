@@ -255,7 +255,7 @@ def on_double_clicking2(event):
 # Login eGela
 root = tk.Tk()
 root.geometry('250x150')
-root.iconbitmap('./favicon.ico') #
+helper.set_icon(root) #
 root.title('Login eGela')
 helper.center(root)
 egela = eGela.eGela(root)
@@ -281,7 +281,7 @@ pdfs = egela.get_pdf_refs()
 # Login Dropbox
 root = tk.Tk()
 root.geometry('250x100')
-root.iconbitmap('./favicon.ico')
+helper.set_icon(root)
 root.title('Login Dropbox')
 helper.center(root)
 
@@ -302,7 +302,7 @@ root.mainloop()
 
 newroot = tk.Tk()
 newroot.geometry("850x400")
-newroot.iconbitmap('./favicon.ico') #
+helper.set_icon(newroot) #
 newroot.title("eGela -> Dropbox") #
 helper.center(newroot)
 
