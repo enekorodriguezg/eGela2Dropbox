@@ -169,53 +169,56 @@ def share_selected_file():
                              "No se pudo generar el enlace.\nAsegúrate de que es un archivo (y no una carpeta) o que no esté ya compartido.")
 
 
-def share_selected_file():
-    # Comprobamos si hay algún archivo seleccionado en la lista de Dropbox
+def execute_rename(from_path, new_name, popup):
+    import os
+    directorio_actual, _ = os.path.split(from_path)
+
+    if directorio_actual == "/":
+        to_path = "/" + new_name
+    else:
+        to_path = directorio_actual + "/" + new_name
+
+    exito = dropbox.move_file(from_path, to_path)
+    popup.destroy()
+
+    if exito:
+        messagebox.showinfo("Éxito", "El archivo se ha renombrado correctamente.")
+        dropbox.list_folder(msg_listbox2)
+    else:
+        messagebox.showerror("Error", "Hubo un problema al renombrar el archivo.")
+
+
+def open_rename_popup():
     if not selected_items2:
         messagebox.showwarning("Atención", "Por favor, selecciona un archivo de Dropbox primero.")
         return
 
-    # Cogemos el primer elemento seleccionado (solo compartiremos uno a la vez)
     seleccion = selected_items2[0]
-
-    # Verificamos si hemos hecho clic en ".." para volver atrás (no se puede compartir)
     if seleccion == 0 and dropbox._path != "/":
-        messagebox.showwarning("Atención", "No puedes compartir la carpeta '..'. Selecciona un archivo.")
+        messagebox.showwarning("Atención", "No puedes renombrar la carpeta '..'. Selecciona un archivo.")
         return
 
     archivo_seleccionado = dropbox._files[seleccion]
 
-    # Construimos la ruta correcta del archivo
     if dropbox._path == "/":
-        path = "/" + archivo_seleccionado['name']
+        from_path = "/" + archivo_seleccionado['name']
     else:
-        path = dropbox._path + "/" + archivo_seleccionado['name']
+        from_path = dropbox._path + "/" + archivo_seleccionado['name']
 
-    # Llamamos a nuestra nueva función de la API
-    url = dropbox.share_file(path)
+    popup = tk.Toplevel(newroot)
+    popup.geometry('280x130')
+    popup.title('Renombrar')
+    popup.iconbitmap('./favicon.ico')
+    helper.center(popup)
 
-    if url:
-        # Si nos devuelve una URL, creamos una ventanita especial para mostrarla
-        popup = tk.Toplevel(newroot)
-        popup.geometry('350x150')
-        popup.title('Enlace Compartido')
-        popup.iconbitmap('./favicon.ico')
-        helper.center(popup)
+    tk.Label(popup, text="Escribe el nuevo nombre:\n(Acuérdate de dejar el .pdf al final)").pack(pady=5)
 
-        tk.Label(popup, text="¡Enlace generado con éxito!\nCópialo aquí:").pack(pady=10)
+    entry_name = tk.Entry(popup, width=35)
+    entry_name.insert(0, archivo_seleccionado['name'])
+    entry_name.pack(pady=5)
 
-        # Usamos un Entry de solo lectura para que sea fácil seleccionar y copiar
-        entrada_url = tk.Entry(popup, width=45)
-        entrada_url.insert(0, url)
-        entrada_url.config(state='readonly')
-        entrada_url.pack(pady=5)
-
-        tk.Button(popup, borderwidth=2, background="#4CAF50", fg="white", text="Cerrar", width=10,
-                  command=popup.destroy).pack(pady=10)
-    else:
-        messagebox.showerror("Error",
-                             "No se pudo generar el enlace.\nAsegúrate de que es un archivo (y no una carpeta) o que no esté ya compartido.")
-
+    tk.Button(popup, borderwidth=2, background="#2196F3", fg="white", text="Guardar Cambios",
+              command=lambda: execute_rename(from_path, entry_name.get(), popup)).pack(pady=5)
 ##########################################################################################################
 
 def check_credentials(event= None):
@@ -366,9 +369,9 @@ button4.pack(padx=2, pady=2)
 button5 = tk.Button(frame2, borderwidth=4, background="#FF9800", fg="white", text="Compartir", width=10, pady=8, command=share_selected_file)
 button5.pack(padx=2, pady=2)
 
-# NUEVO BOTÓN PARA COMPARTIR
-button5 = tk.Button(frame2, borderwidth=4, background="#FF9800", fg="white", text="Compartir", width=10, pady=8, command=share_selected_file)
-button5.pack(padx=2, pady=2)
+# NUEVO BOTÓN PARA RENOMBRAR
+button6 = tk.Button(frame2, borderwidth=4, background="#2196F3", fg="white", text="Renombrar", width=10, pady=8, command=open_rename_popup)
+button6.pack(padx=2, pady=2)
 
 frame2.grid(row=1, column=3,  ipadx=10, ipady=10)
 
