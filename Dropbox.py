@@ -189,7 +189,65 @@ class Dropbox:
 
         if respuesta.status_code == 200:
             info = respuesta.json()
-            print("Nombre:", info.get('name', {}).get('display_name'))
-            print("Email:", info.get('email'))
+            nombre = info.get('name', {}).get('display_name')
+            email = info.get('email')
+            # En lugar de hacer un print, ahora devolvemos los datos
+            return nombre, email
         else:
             print(respuesta.text)
+            return None, None
+
+    def share_file(self, file_path):
+        print("/share_file")
+        uri = 'https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings'
+
+        headers = {
+            'Authorization': 'Bearer ' + self._access_token,
+            'Content-Type': 'application/json'
+        }
+
+        # Le decimos a Dropbox qué archivo queremos compartir
+        data = {
+            'path': file_path,
+            'settings': {
+                'requested_visibility': 'public'
+            }
+        }
+
+        respuesta = requests.post(uri, headers=headers, data=json.dumps(data))
+
+        if respuesta.status_code == 200:
+            # Si todo va bien, sacamos la URL del JSON de respuesta
+            enlace = respuesta.json().get('url')
+            return enlace
+        else:
+            # Si da error (por ejemplo, si el archivo ya estaba compartido de antes)
+            print("Error o el archivo ya tiene un enlace compartido:")
+            print(respuesta.text)
+            return None
+
+    def move_file(self, from_path, to_path):
+        print("/move_file")
+        uri = 'https://api.dropboxapi.com/2/files/move_v2'
+
+        headers = {
+            'Authorization': 'Bearer ' + self._access_token,
+            'Content-Type': 'application/json'
+        }
+
+        # autorename=False porque queremos el nombre exacto que escriba el usuario
+        data = {
+            'from_path': from_path,
+            'to_path': to_path,
+            'autorename': False
+        }
+
+        respuesta = requests.post(uri, headers=headers, data=json.dumps(data))
+
+        if respuesta.status_code == 200:
+            print("Archivo renombrado/movido con éxito")
+            return True
+        else:
+            print("Error al renombrar el archivo:")
+            print(respuesta.text)
+            return False

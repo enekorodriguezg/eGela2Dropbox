@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import tkinter as tk
+from tkinter import messagebox
 import os
 import eGela
 import Dropbox
@@ -110,6 +111,110 @@ def create_folder():
     send_button.pack(side=tk.TOP)
     dropbox._root = popup
 
+
+def show_profile():
+    nombre, email = dropbox.get_current_account()
+
+    if nombre and email:
+        messagebox.showinfo("Perfil de Dropbox", f"¡Conectado con éxito!\n\nNombre: {nombre}\nEmail: {email}")
+    else:
+        messagebox.showerror("Error", "No se pudo obtener la información del perfil.")
+
+
+def share_selected_file():
+    # Comprobamos si hay algún archivo seleccionado en la lista de Dropbox
+    if not selected_items2:
+        messagebox.showwarning("Atención", "Por favor, selecciona un archivo de Dropbox primero.")
+        return
+
+    # Cogemos el primer elemento seleccionado (solo compartiremos uno a la vez)
+    seleccion = selected_items2[0]
+
+    # Verificamos si hemos hecho clic en ".." para volver atrás (no se puede compartir)
+    if seleccion == 0 and dropbox._path != "/":
+        messagebox.showwarning("Atención", "No puedes compartir la carpeta '..'. Selecciona un archivo.")
+        return
+
+    archivo_seleccionado = dropbox._files[seleccion]
+
+    # Construimos la ruta correcta del archivo
+    if dropbox._path == "/":
+        path = "/" + archivo_seleccionado['name']
+    else:
+        path = dropbox._path + "/" + archivo_seleccionado['name']
+
+    # Llamamos a nuestra nueva función de la API
+    url = dropbox.share_file(path)
+
+    if url:
+        # Si nos devuelve una URL, creamos una ventanita especial para mostrarla
+        popup = tk.Toplevel(newroot)
+        popup.geometry('350x150')
+        popup.title('Enlace Compartido')
+        popup.iconbitmap('./favicon.ico')
+        helper.center(popup)
+
+        tk.Label(popup, text="¡Enlace generado con éxito!\nCópialo aquí:").pack(pady=10)
+
+        # Usamos un Entry de solo lectura para que sea fácil seleccionar y copiar
+        entrada_url = tk.Entry(popup, width=45)
+        entrada_url.insert(0, url)
+        entrada_url.config(state='readonly')
+        entrada_url.pack(pady=5)
+
+        tk.Button(popup, borderwidth=2, background="#4CAF50", fg="white", text="Cerrar", width=10,
+                  command=popup.destroy).pack(pady=10)
+    else:
+        messagebox.showerror("Error",
+                             "No se pudo generar el enlace.\nAsegúrate de que es un archivo (y no una carpeta) o que no esté ya compartido.")
+
+
+def share_selected_file():
+    # Comprobamos si hay algún archivo seleccionado en la lista de Dropbox
+    if not selected_items2:
+        messagebox.showwarning("Atención", "Por favor, selecciona un archivo de Dropbox primero.")
+        return
+
+    # Cogemos el primer elemento seleccionado (solo compartiremos uno a la vez)
+    seleccion = selected_items2[0]
+
+    # Verificamos si hemos hecho clic en ".." para volver atrás (no se puede compartir)
+    if seleccion == 0 and dropbox._path != "/":
+        messagebox.showwarning("Atención", "No puedes compartir la carpeta '..'. Selecciona un archivo.")
+        return
+
+    archivo_seleccionado = dropbox._files[seleccion]
+
+    # Construimos la ruta correcta del archivo
+    if dropbox._path == "/":
+        path = "/" + archivo_seleccionado['name']
+    else:
+        path = dropbox._path + "/" + archivo_seleccionado['name']
+
+    # Llamamos a nuestra nueva función de la API
+    url = dropbox.share_file(path)
+
+    if url:
+        # Si nos devuelve una URL, creamos una ventanita especial para mostrarla
+        popup = tk.Toplevel(newroot)
+        popup.geometry('350x150')
+        popup.title('Enlace Compartido')
+        popup.iconbitmap('./favicon.ico')
+        helper.center(popup)
+
+        tk.Label(popup, text="¡Enlace generado con éxito!\nCópialo aquí:").pack(pady=10)
+
+        # Usamos un Entry de solo lectura para que sea fácil seleccionar y copiar
+        entrada_url = tk.Entry(popup, width=45)
+        entrada_url.insert(0, url)
+        entrada_url.config(state='readonly')
+        entrada_url.pack(pady=5)
+
+        tk.Button(popup, borderwidth=2, background="#4CAF50", fg="white", text="Cerrar", width=10,
+                  command=popup.destroy).pack(pady=10)
+    else:
+        messagebox.showerror("Error",
+                             "No se pudo generar el enlace.\nAsegúrate de que es un archivo (y no una carpeta) o que no esté ya compartido.")
 
 ##########################################################################################################
 
@@ -245,11 +350,26 @@ messages_frame2.grid(row=1, column=2, ipadx=10, ipady=10, padx=2, pady=2)
 
 # Frame con botones Create y Delete (1,3)
 
+# Frame con botones Create, Delete y Perfil (1,3)
 frame2 = tk.Frame(newroot)
 button2 = tk.Button(frame2, borderwidth=4,  background="#C6185C",fg="white", text="Delete", width=10, pady=8, command=delete_files)
 button2.pack(padx=2, pady=2)
+
 button3 = tk.Button(frame2, borderwidth=4, background="#7C86FF",fg="white", text="Create folder", width=10, pady=8, command=create_folder)
 button3.pack(padx=2, pady=2)
+
+# ESTE ES EL NUEVO BOTÓN
+button4 = tk.Button(frame2, borderwidth=4, background="#4CAF50",fg="white", text="Mi Perfil", width=10, pady=8, command=show_profile)
+button4.pack(padx=2, pady=2)
+
+# NUEVO BOTÓN PARA COMPARTIR
+button5 = tk.Button(frame2, borderwidth=4, background="#FF9800", fg="white", text="Compartir", width=10, pady=8, command=share_selected_file)
+button5.pack(padx=2, pady=2)
+
+# NUEVO BOTÓN PARA COMPARTIR
+button5 = tk.Button(frame2, borderwidth=4, background="#FF9800", fg="white", text="Compartir", width=10, pady=8, command=share_selected_file)
+button5.pack(padx=2, pady=2)
+
 frame2.grid(row=1, column=3,  ipadx=10, ipady=10)
 
 for each in pdfs:
