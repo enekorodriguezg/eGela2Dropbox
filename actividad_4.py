@@ -313,34 +313,29 @@ newroot.columnconfigure(1, weight=1)
 newroot.columnconfigure(2, weight=6)
 newroot.columnconfigure(3, weight=1)
 
-# Etigueta PDFs en Sistemas Web (0,0)   #
 var2 = tk.StringVar()
 var2.set("PDFs en Sistemas Web")
 label2 = tk.Label(newroot, textvariable=var2)
 label2.grid(column=0, row=0, ipadx=5, ipady=5)
 
-# Etigueta del directorio de Dropbox (0,2)
 var = tk.StringVar()
 var.set(dropbox._path)
 label = tk.Label(newroot, textvariable=var)
 label.grid( row=0, column=2, ipadx=5, ipady=5)
 
-# Frame con lista de PDFs e eGela (1,0)
 selected_items1 = None
 messages_frame1 = tk.Frame(newroot)
 msg_listbox1 = make_listbox(messages_frame1)
 msg_listbox1.bind('<<ListboxSelect>>', on_selecting1)
 msg_listbox1.pack(side=tk.LEFT, fill=tk.BOTH)
-#messages_frame1.pack()
+
 messages_frame1.grid(row=1, column=0, ipadx=10, ipady=10, padx=2, pady=2) #
 
-# Frame con boton >>> (1,1)
 frame1 = tk.Frame(newroot)
 button1 = tk.Button(frame1, borderwidth=4, text=">>>", width=10, pady=8, command=transfer_files)
 button1.pack()
 frame1.grid(row=1, column=1, ipadx=5, ipady=5)
 
-# Frame con ficheros en Dropbox (1,2)
 selected_items2 = None
 messages_frame2 = tk.Frame(newroot)
 msg_listbox2 = make_listbox(messages_frame2)
@@ -348,12 +343,8 @@ msg_listbox2.bind('<<ListboxSelect>>', on_selecting2)
 msg_listbox2.bind('<Double-Button-1>', on_double_clicking2)
 msg_listbox2.pack(side=tk.RIGHT, fill=tk.BOTH)
 
-#messages_frame2.pack()
 messages_frame2.grid(row=1, column=2, ipadx=10, ipady=10, padx=2, pady=2)
 
-# Frame con botones Create y Delete (1,3)
-
-# Frame con botones Create, Delete y Perfil (1,3)
 frame2 = tk.Frame(newroot)
 button2 = tk.Button(frame2, borderwidth=4,  background="#C6185C",fg="white", text="Delete", width=10, pady=8, command=delete_files)
 button2.pack(padx=2, pady=2)
@@ -361,15 +352,12 @@ button2.pack(padx=2, pady=2)
 button3 = tk.Button(frame2, borderwidth=4, background="#7C86FF",fg="white", text="Create folder", width=10, pady=8, command=create_folder)
 button3.pack(padx=2, pady=2)
 
-# ESTE ES EL NUEVO BOTÓN
 button4 = tk.Button(frame2, borderwidth=4, background="#4CAF50",fg="white", text="Mi Perfil", width=10, pady=8, command=show_profile)
 button4.pack(padx=2, pady=2)
 
-# NUEVO BOTÓN PARA COMPARTIR
 button5 = tk.Button(frame2, borderwidth=4, background="#FF9800", fg="white", text="Compartir", width=10, pady=8, command=share_selected_file)
 button5.pack(padx=2, pady=2)
 
-# NUEVO BOTÓN PARA RENOMBRAR
 button6 = tk.Button(frame2, borderwidth=4, background="#2196F3", fg="white", text="Renombrar", width=10, pady=8, command=open_rename_popup)
 button6.pack(padx=2, pady=2)
 

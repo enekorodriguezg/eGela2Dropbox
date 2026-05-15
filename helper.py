@@ -32,7 +32,6 @@ def progress(tipo, title):
 
     progress_var = tk.DoubleVar()
     progress_bar = ttk.Progressbar(popup, variable=progress_var, maximum=100)
-    #progress_bar.grid(row=1, column=0)
     progress_bar.pack(side=tk.TOP)
 
     return popup, progress_var, progress_bar
@@ -66,17 +65,9 @@ def set_icon(window, icon_path='./favicon.ico'):
         if os.name == 'nt':
             window.iconbitmap(icon_path)
         else:
-            # Importación local de la nueva librería
-            
-            
-            # Pillow sí sabe leer archivos .ico y convertirlos
             img = Image.open(icon_path)
             icono = ImageTk.PhotoImage(img)
-            
-            # CRUCIAL: Guardamos una referencia en la ventana para que 
-            # el 'Garbage Collector' de Python no borre la imagen de la memoria RAM
             window.icono_persistente = icono 
-            
             window.iconphoto(True, icono)
     except Exception as e:
         print(f"Aviso: No se pudo cargar el icono ({e}). Continuando ejecución...")
